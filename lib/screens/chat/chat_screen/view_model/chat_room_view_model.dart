@@ -121,7 +121,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             final List<String> activeMemberList =
                 activeMemberData.map((item) => item.toString()).toList();
             currentRoomMembers =
-                await db.getRoomMembersByRoomId(int.parse(currRoomID));
+                await db.roomMemberDao.getRoomMembersByRoomId(int.parse(currRoomID));
             currentRoomMembers.forEach((key, value) {
               if (activeMemberList.contains(value.email)) {
                 value.isActive = true;
@@ -388,7 +388,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       return currentRoomMembers[memberId.toString()];
     }
 
-    final roomMemberDB = await db.fetchRoomMemberById(int.parse(memberId));
+    final roomMemberDB = await db.roomMemberDao.fetchRoomMemberById(int.parse(memberId));
     if (roomMemberDB == null) {
       return null;
     }
@@ -429,7 +429,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             memberIds.add(roomMember.id);
           }
         });
-        await db.saveRoomMemberMapping(int.parse(roomId), memberIds);
+        await db.roomMemberDao.saveRoomMemberMapping(int.parse(roomId), memberIds);
       }
     } catch (e) {
       logger.e("ERROR in saveRoomMemberToLocalDb: $e");
@@ -501,7 +501,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             userLastSeen: drift.Value(room.userLastSeen),
             isSynced: const drift.Value(true));
         _apiRoomData?.add(roomCompanion);
-        await db.insertRoomToDB(roomCompanion);
+        await db.roomDao.insertRoomToDB(roomCompanion);
         fetchRoomMembersAndStoreInDB(db, room.id.toString());
       }
       // logger.d("Saved All Rooms to Local DB");
@@ -517,7 +517,7 @@ class ChatRoomViewModel extends ChangeNotifier {
     // print("Fetching from local Storage");
 
     try {
-      List<Room> temp = await db.getAllProjectsDB();
+      List<Room> temp = await db.roomDao.getAllProjectsDB();
       List<Rooms> userProjectData;
       userProjectData = temp.map((room) {
         return Rooms(
@@ -874,7 +874,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   }
 
   ///-----------------PIPELINE:FOR MESSAGE--------------------///
-  ///Step1:fetching from localDB and displaying on UI
+  ///Step1:fetching from localDB db .and displaying on UI
   ///Step2:fetching from Api and update localDB.
   Future<void> staticMessagePipeline(AppDb db, String roomID) async {
     // logger.i("..Message pipeline started... for $roomID");

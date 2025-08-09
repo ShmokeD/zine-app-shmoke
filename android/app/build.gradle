@@ -37,7 +37,7 @@ if (flutterVersionName == null) {
 android {
 
     compileSdkVersion 35
-    ndkVersion '25.1.8937393'
+    ndkVersion '26.1.10909125'
     namespace "co.zine.zineapp2023"
 
     compileOptions {

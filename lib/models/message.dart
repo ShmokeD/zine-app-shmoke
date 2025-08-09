@@ -3,7 +3,7 @@ import 'message_update.dart';
 
 //This model is used for internal messages
 class MessageModel {
-  int? id;
+  int id;
   MessageType type;
   String? textDeprecate;
   TextData? text;
@@ -27,6 +27,7 @@ class MessageModel {
   MessageModel.fromJson(Map<String, dynamic> json)
       : type = MessageType.values.byName(json['type'] ?? 'text'),
         replyToId = json['replyToId'],
+        id = json['id'],
         sender = Sender.fromJson(json['sentFrom']) {
     switch (type) {
       case MessageType.file:

@@ -90,7 +90,7 @@ class UserProv extends ChangeNotifier {
     _isLoggedIn = false;
     // _currUser = UserModel();
     // notifyListeners();
-    AppDb.deleteUserLocalDb(db);
+    AppDb.deleteLocalDb(db);
   }
 
   // void updateLast(String name) {

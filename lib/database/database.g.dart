@@ -526,7 +526,7 @@ class $FileTableTable extends FileTable
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, true,
+      'id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _uriMeta = const VerificationMeta('uri');
   @override
@@ -597,7 +597,7 @@ class $FileTableTable extends FileTable
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return FileDB(
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       uri: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}uri'])!,
       filePath: attachedDatabase.typeMapping
@@ -616,13 +616,13 @@ class $FileTableTable extends FileTable
 }
 
 class FileDB extends DataClass implements Insertable<FileDB> {
-  final int? id;
+  final int id;
   final String uri;
   final String? filePath;
   final String? description;
   final String name;
   const FileDB(
-      {this.id,
+      {required this.id,
       required this.uri,
       this.filePath,
       this.description,
@@ -630,9 +630,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
+    map['id'] = Variable<int>(id);
     map['uri'] = Variable<String>(uri);
     if (!nullToAbsent || filePath != null) {
       map['file_path'] = Variable<String>(filePath);
@@ -646,7 +644,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
 
   FileTableCompanion toCompanion(bool nullToAbsent) {
     return FileTableCompanion(
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      id: Value(id),
       uri: Value(uri),
       filePath: filePath == null && nullToAbsent
           ? const Value.absent()
@@ -662,7 +660,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return FileDB(
-      id: serializer.fromJson<int?>(json['id']),
+      id: serializer.fromJson<int>(json['id']),
       uri: serializer.fromJson<String>(json['uri']),
       filePath: serializer.fromJson<String?>(json['filePath']),
       description: serializer.fromJson<String?>(json['description']),
@@ -673,7 +671,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int?>(id),
+      'id': serializer.toJson<int>(id),
       'uri': serializer.toJson<String>(uri),
       'filePath': serializer.toJson<String?>(filePath),
       'description': serializer.toJson<String?>(description),
@@ -682,13 +680,13 @@ class FileDB extends DataClass implements Insertable<FileDB> {
   }
 
   FileDB copyWith(
-          {Value<int?> id = const Value.absent(),
+          {int? id,
           String? uri,
           Value<String?> filePath = const Value.absent(),
           Value<String?> description = const Value.absent(),
           String? name}) =>
       FileDB(
-        id: id.present ? id.value : this.id,
+        id: id ?? this.id,
         uri: uri ?? this.uri,
         filePath: filePath.present ? filePath.value : this.filePath,
         description: description.present ? description.value : this.description,
@@ -731,7 +729,7 @@ class FileDB extends DataClass implements Insertable<FileDB> {
 }
 
 class FileTableCompanion extends UpdateCompanion<FileDB> {
-  final Value<int?> id;
+  final Value<int> id;
   final Value<String> uri;
   final Value<String?> filePath;
   final Value<String?> description;
@@ -768,7 +766,7 @@ class FileTableCompanion extends UpdateCompanion<FileDB> {
   }
 
   FileTableCompanion copyWith(
-      {Value<int?>? id,
+      {Value<int>? id,
       Value<String>? uri,
       Value<String?>? filePath,
       Value<String?>? description,
@@ -1468,8 +1466,8 @@ class $MessagesTableTable extends MessagesTable
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<String> type = GeneratedColumn<String>(
-      'type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _textDataMeta =
       const VerificationMeta('textData');
   @override
@@ -1558,6 +1556,8 @@ class $MessagesTableTable extends MessagesTable
     if (data.containsKey('type')) {
       context.handle(
           _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
     }
     if (data.containsKey('text_data')) {
       context.handle(_textDataMeta,
@@ -1609,7 +1609,7 @@ class $MessagesTableTable extends MessagesTable
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       type: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}type']),
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
       textData: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}text_data']),
       fileId: attachedDatabase.typeMapping
@@ -1637,7 +1637,7 @@ class $MessagesTableTable extends MessagesTable
 
 class MessageDB extends DataClass implements Insertable<MessageDB> {
   final int id;
-  final String? type;
+  final String type;
   final String? textData;
   final int? fileId;
   final int? pollId;
@@ -1648,7 +1648,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
   final int? replyToId;
   const MessageDB(
       {required this.id,
-      this.type,
+      required this.type,
       this.textData,
       this.fileId,
       this.pollId,
@@ -1661,9 +1661,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    if (!nullToAbsent || type != null) {
-      map['type'] = Variable<String>(type);
-    }
+    map['type'] = Variable<String>(type);
     if (!nullToAbsent || textData != null) {
       map['text_data'] = Variable<String>(textData);
     }
@@ -1690,7 +1688,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
   MessagesTableCompanion toCompanion(bool nullToAbsent) {
     return MessagesTableCompanion(
       id: Value(id),
-      type: type == null && nullToAbsent ? const Value.absent() : Value(type),
+      type: Value(type),
       textData: textData == null && nullToAbsent
           ? const Value.absent()
           : Value(textData),
@@ -1716,7 +1714,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MessageDB(
       id: serializer.fromJson<int>(json['id']),
-      type: serializer.fromJson<String?>(json['type']),
+      type: serializer.fromJson<String>(json['type']),
       textData: serializer.fromJson<String?>(json['textData']),
       fileId: serializer.fromJson<int?>(json['fileId']),
       pollId: serializer.fromJson<int?>(json['pollId']),
@@ -1732,7 +1730,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'type': serializer.toJson<String?>(type),
+      'type': serializer.toJson<String>(type),
       'textData': serializer.toJson<String?>(textData),
       'fileId': serializer.toJson<int?>(fileId),
       'pollId': serializer.toJson<int?>(pollId),
@@ -1746,7 +1744,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
 
   MessageDB copyWith(
           {int? id,
-          Value<String?> type = const Value.absent(),
+          String? type,
           Value<String?> textData = const Value.absent(),
           Value<int?> fileId = const Value.absent(),
           Value<int?> pollId = const Value.absent(),
@@ -1757,7 +1755,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
           Value<int?> replyToId = const Value.absent()}) =>
       MessageDB(
         id: id ?? this.id,
-        type: type.present ? type.value : this.type,
+        type: type ?? this.type,
         textData: textData.present ? textData.value : this.textData,
         fileId: fileId.present ? fileId.value : this.fileId,
         pollId: pollId.present ? pollId.value : this.pollId,
@@ -1821,7 +1819,7 @@ class MessageDB extends DataClass implements Insertable<MessageDB> {
 
 class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
   final Value<int> id;
-  final Value<String?> type;
+  final Value<String> type;
   final Value<String?> textData;
   final Value<int?> fileId;
   final Value<int?> pollId;
@@ -1844,7 +1842,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
   });
   MessagesTableCompanion.insert({
     this.id = const Value.absent(),
-    this.type = const Value.absent(),
+    required String type,
     this.textData = const Value.absent(),
     this.fileId = const Value.absent(),
     this.pollId = const Value.absent(),
@@ -1853,7 +1851,8 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
     this.roomId = const Value.absent(),
     required int sentFromId,
     this.replyToId = const Value.absent(),
-  }) : sentFromId = Value(sentFromId);
+  })  : type = Value(type),
+        sentFromId = Value(sentFromId);
   static Insertable<MessageDB> custom({
     Expression<int>? id,
     Expression<String>? type,
@@ -1882,7 +1881,7 @@ class MessagesTableCompanion extends UpdateCompanion<MessageDB> {
 
   MessagesTableCompanion copyWith(
       {Value<int>? id,
-      Value<String?>? type,
+      Value<String>? type,
       Value<String?>? textData,
       Value<int?>? fileId,
       Value<int?>? pollId,
@@ -2919,6 +2918,9 @@ abstract class _$AppDb extends GeneratedDatabase {
       $PollOptionTableTable(this);
   late final $RoomMemberMappingTableTable roomMemberMappingTable =
       $RoomMemberMappingTableTable(this);
+  late final UserDao userDao = UserDao(this as AppDb);
+  late final RoomDao roomDao = RoomDao(this as AppDb);
+  late final RoomMemberDao roomMemberDao = RoomMemberDao(this as AppDb);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3347,14 +3349,14 @@ typedef $$RoomsTableTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function(
         {bool messagesTableRefs, bool roomMemberMappingTableRefs})>;
 typedef $$FileTableTableCreateCompanionBuilder = FileTableCompanion Function({
-  Value<int?> id,
+  Value<int> id,
   required String uri,
   Value<String?> filePath,
   Value<String?> description,
   required String name,
 });
 typedef $$FileTableTableUpdateCompanionBuilder = FileTableCompanion Function({
-  Value<int?> id,
+  Value<int> id,
   Value<String> uri,
   Value<String?> filePath,
   Value<String?> description,
@@ -3373,7 +3375,7 @@ final class $$FileTableTableReferences
 
   $$MessagesTableTableProcessedTableManager get messagesTableRefs {
     final manager = $$MessagesTableTableTableManager($_db, $_db.messagesTable)
-        .filter((f) => f.fileId.id.sqlEquals($_itemColumn<int>('id') ?? 99999));
+        .filter((f) => f.fileId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_messagesTableRefsTable($_db));
     return ProcessedTableManager(
@@ -3521,7 +3523,7 @@ class $$FileTableTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$FileTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int?> id = const Value.absent(),
+            Value<int> id = const Value.absent(),
             Value<String> uri = const Value.absent(),
             Value<String?> filePath = const Value.absent(),
             Value<String?> description = const Value.absent(),
@@ -3535,7 +3537,7 @@ class $$FileTableTableTableManager extends RootTableManager<
             name: name,
           ),
           createCompanionCallback: ({
-            Value<int?> id = const Value.absent(),
+            Value<int> id = const Value.absent(),
             required String uri,
             Value<String?> filePath = const Value.absent(),
             Value<String?> description = const Value.absent(),
@@ -4272,7 +4274,7 @@ typedef $$RoomMemberTableTableProcessedTableManager = ProcessedTableManager<
 typedef $$MessagesTableTableCreateCompanionBuilder = MessagesTableCompanion
     Function({
   Value<int> id,
-  Value<String?> type,
+  required String type,
   Value<String?> textData,
   Value<int?> fileId,
   Value<int?> pollId,
@@ -4285,7 +4287,7 @@ typedef $$MessagesTableTableCreateCompanionBuilder = MessagesTableCompanion
 typedef $$MessagesTableTableUpdateCompanionBuilder = MessagesTableCompanion
     Function({
   Value<int> id,
-  Value<String?> type,
+  Value<String> type,
   Value<String?> textData,
   Value<int?> fileId,
   Value<int?> pollId,
@@ -4709,7 +4711,7 @@ class $$MessagesTableTableTableManager extends RootTableManager<
               $$MessagesTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<String?> type = const Value.absent(),
+            Value<String> type = const Value.absent(),
             Value<String?> textData = const Value.absent(),
             Value<int?> fileId = const Value.absent(),
             Value<int?> pollId = const Value.absent(),
@@ -4733,7 +4735,7 @@ class $$MessagesTableTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<String?> type = const Value.absent(),
+            required String type,
             Value<String?> textData = const Value.absent(),
             Value<int?> fileId = const Value.absent(),
             Value<int?> pollId = const Value.absent(),

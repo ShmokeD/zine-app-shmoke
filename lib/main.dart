@@ -42,7 +42,7 @@ Future<void> main() async {
   await initializeNotifications();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   AppDb db = AppDb();
-  await db.initializeIsSyncedColumn();
+  await db.roomDao.initializeIsSyncedColumn();
   setupForegroundMessageListener();
 
   // log('\nNotification Channel Result: $result');

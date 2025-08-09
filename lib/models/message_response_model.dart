@@ -3,7 +3,7 @@ import 'message.dart';
 
 //This model is used for API message mapping
 class MessageResponseModel {
-  int? id;
+  int id;
   MessageType type;
   TextData? text;
   FileData? file;
@@ -26,6 +26,8 @@ class MessageResponseModel {
 
   MessageResponseModel.fromJson(Map<String, dynamic> json)
       : type = MessageType.values.byName(json['type'] ?? 'text'),
+      id =  int.parse(json['id']),
+
         replyTo =
             json['replyTo'] != null ? ReplyTo.fromJson(json['replyTo']) : null,
         sentFrom = SentFrom.fromJson(json['sentFrom']) {

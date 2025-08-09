@@ -96,7 +96,7 @@ class AuthRepo {
       logger.d('User Body ${res.body}');
       Map<String, dynamic> user = jsonDecode(res.body);
       NewUserModel userData = NewUserModel.fromJson(user);
-      await db.upsertUserDB(userData);
+      await db.userDao.upsertUserDB(userData);
 
       UserModel userMod = UserModel(
           uid: uid,
