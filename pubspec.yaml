@@ -32,7 +32,6 @@ dependencies:
   auto_size_text: ^3.0.0
   cached_network_image: ^3.4.1
   carousel_slider: ^5.0.0
-  cloud_firestore: ^4.13.6
   collection: any
   cupertino_icons: ^1.0.2
   decorated_icon: ^1.2.1
@@ -40,10 +39,8 @@ dependencies:
   drift_flutter: ^0.2.5
   expansion_tile_card: ^3.0.0
   file_picker: ^8.1.7
-  firebase_auth: ^4.2.5
   firebase_core: ^2.27.0
   firebase_messaging: ^14.2.1
-  firebase_storage: ^11.1.0
   image: ^4.5.2
   flutter:
     sdk: flutter

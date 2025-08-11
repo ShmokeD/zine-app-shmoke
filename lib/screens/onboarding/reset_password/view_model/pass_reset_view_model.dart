@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -46,10 +45,10 @@ class PasswordResetVm extends ChangeNotifier {
               toastLength: Toast.LENGTH_LONG,
               backgroundColor: Colors.red);
         }
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       setLoading(false);
       Fluttertoast.showToast(
-          msg: e.message!,
+          msg: e.code,
           toastLength: Toast.LENGTH_LONG,
           backgroundColor: Colors.red);
     }

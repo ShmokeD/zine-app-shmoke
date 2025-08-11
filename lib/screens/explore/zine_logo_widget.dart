@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 
 class ZineWhiteLogoWidget extends StatelessWidget {
@@ -25,7 +26,7 @@ class ZineWhiteLogoWidget extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      dashboardVm.launchUrl(
+                     launchUrlString(
                           'https://www.instagram.com/zine.robotics/');
                     },
                     child: const Padding(
@@ -37,9 +38,7 @@ class ZineWhiteLogoWidget extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () {
-                      dashboardVm.launchUrl('https://zine.co.in/');
-                    },
+                    onTap: () => launchUrlString('https://zine.co.in/'),
                     child: const Padding(
                       padding: EdgeInsets.fromLTRB(9.0, 18, 20, 18),
                       child: FaIcon(

@@ -20,17 +20,47 @@ class AuthRepo {
   AuthRepo({required this.store, required this.db});
 
   Future<bool> sendResetEmail(String email) async {
-    Response res = await http.post(
-        BackendProperties.resetUri
-            .replace(queryParameters: {'email': email.toString()}),
-        headers: BackendProperties.getHeaders());
-    logger.d("res:${res.statusCode}");
-    if (res.statusCode == 200) {
-      return true;
-    } else {
-      return false;
+    Response res;
+    Map<String, dynamic> resBody = {};
+    try {
+      res = await http.post(
+        BackendProperties.resetUri.replace(queryParameters: {'email': email}),
+        headers: BackendProperties.getHeaders(),
+      );
+
+      resBody = res.body.isNotEmpty ? jsonDecode(res.body) : {};
+
+      switch (res.statusCode) {
+        case 200:
+          logger.d("Reset email sent successfully.");
+          return true;
+        default:
+          logger.e(
+              "Failed to send reset email: ${resBody['failureReason'] ?? res.reasonPhrase}");
+          throw AuthException(code: resBody['failureReason'] ?? 'unknown');
+      }
+    } on SocketException {
+      logger.e('No internet connection.');
+      throw AuthException(code: 'no-connect');
+    } catch (e) {
+      throw AuthException(code: resBody['failureReason'] ?? 'unknown');
+
     }
   }
+
+  // Future<bool> sendResetEmail(String email) async {
+
+  //   Response res = await http.post(
+  //       BackendProperties.resetUri
+  //           .replace(queryParameters: {'email': email.toString()}),
+  //       headers: BackendProperties.getHeaders());
+  //   logger.d("res:${res.statusCode}");
+  //   if (res.statusCode == 200) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   // Future<void> updateToken()
   // {
@@ -106,7 +136,6 @@ class AuthRepo {
           dp: user['dpUrl'] ?? "1",
           type: user['type'],
           registered: user['registered']! ?? false,
-          tasks: [],
           lastSeen: user['lastSeen'] ?? {});
 
       return userMod;

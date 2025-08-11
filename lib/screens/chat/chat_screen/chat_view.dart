@@ -6,10 +6,12 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:swipe_to/swipe_to.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/file_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/poll_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
+import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
 
 import '../../../models/message.dart';
 import '../../../theme/color.dart';
@@ -20,7 +22,7 @@ const Color userSelectedTextColor = Color.fromARGB(255, 255, 255, 255);
 const Color otherColor = Color(0xff0c72b0);
 const Color otherSelectedTextColor = Color(0xffE8F2FC); // Dark blue text
 
-Widget chatV(BuildContext context, dashVm, dynamic reply) {
+Widget chatV(BuildContext context,DashboardVm dashVm, dynamic reply) {
   ChatRoomViewModel chatRoomViewModel =
       Provider.of<ChatRoomViewModel>(context, listen: true);
   List<MessageModel> chats = chatRoomViewModel.messages;
@@ -82,7 +84,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
             // print(
             //     "chats length:${index} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
             var currIndx = chats.length - index - 1;
-            chatRoomViewModel.messageKeys[chats[currIndx].id!] = GlobalKey();
+            chatRoomViewModel.messageKeys[chats[currIndx].id] = GlobalKey();
             bool isUser = (userVm.getUserInfo.id == chats[currIndx].sender!.id);
             var showDate = index == chats.length - 1 ||
                 (chats.length - index >= 2 &&
@@ -107,7 +109,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
               return chats[currIndx].text == null
                   ? Container()
                   : KeyedSubtree(
-                      key: chatRoomViewModel.messageKeys[chats[currIndx].id!],
+                      key: chatRoomViewModel.messageKeys[chats[currIndx].id],
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -497,7 +499,7 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
                                                   : otherSelectedTextColor,
                                             ),
                                             onOpen: (link) =>
-                                                dashVm.launchUrl(link.url),
+                                                launchUrlString(link.url),
                                             linkStyle: TextStyle(
                                               fontWeight: FontWeight.w400,
                                               fontSize: 18.0,
@@ -523,14 +525,14 @@ Widget chatV(BuildContext context, dashVm, dynamic reply) {
             } else if (chats[currIndx].type == MessageType.poll &&
                 chats[currIndx].poll != null) {
               return KeyedSubtree(
-                key: chatRoomViewModel.messageKeys[chats[currIndx].id!],
+                key: chatRoomViewModel.messageKeys[chats[currIndx].id],
                 child: PollTile(
                   group: group,
                   chatVm: chatRoomViewModel,
                   message: chats[currIndx],
                   isUser: chats[currIndx].sender!.id == userVm.getUserInfo.id,
                   onVote: (optionId) => chatRoomViewModel.sendPollResponse(
-                      chats[currIndx].id!, optionId),
+                      chats[currIndx].id, optionId),
                 ),
               );
             } else if (chats[currIndx].type == MessageType.file &&

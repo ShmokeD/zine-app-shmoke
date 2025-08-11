@@ -1,13 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
+import 'package:intl/intl.dart';
 import 'package:zineapp2023/models/events.dart';
-import 'package:zineapp2023/utilities/date_time.dart';
+
+
 
 class EventCard extends StatefulWidget {
   final Events tempEvent;
-  final DateTime  selectedDate;
-  const EventCard({super.key, required this.selectedDate, required this.tempEvent});
+  final DateTime selectedDate;
+  const EventCard(
+      {super.key, required this.selectedDate, required this.tempEvent});
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -28,15 +30,12 @@ class _EventCardState extends State<EventCard> {
     // DateTime? tempDate = widget.tempEvent.tartDateTime!);
 
     if (!checked) {
-
-      initExp = getDDate(date) == getDDate(widget.selectedDate);
+      initExp = date.compareTo(widget.selectedDate) == 0;
       isExpanded = initExp;
     }
     //isExpanded=int.parse(compareDay.toString())==checkDay ? true :false;
 
-    bool isOld = Timestamp.fromDate(DateTime.now()).compareTo(
-                Timestamp.fromDate((widget.tempEvent.startDateTime!))) >
-            0
+    bool isOld = DateTime.now().compareTo(widget.tempEvent.startDateTime!) > 0
         ? false
         : true;
     // ignore: unused_local_variable
@@ -119,7 +118,7 @@ class _EventCardState extends State<EventCard> {
                         // const Spacer(),
                         //const SizedBox(width: 15,),
                         Text(
-                          getChatDate(tempEvent.startDateTime!),
+                          DateFormat(DateFormat.ABBR_MONTH).format(tempEvent.startDateTime!),
                           textAlign: TextAlign.center,
                           style: textStyle3,
                         ),
@@ -128,7 +127,7 @@ class _EventCardState extends State<EventCard> {
                         ),
                         // const Spacer(),
                         Text(
-                          getChatTime(tempEvent.startDateTime!),
+                          DateFormat('HH:mm').format(tempEvent.startDateTime!),
                           textAlign: TextAlign.center,
                           style: textStyle3,
                         ),
@@ -155,24 +154,23 @@ class _EventCardState extends State<EventCard> {
                       child: Column(
                         children: [
                           Text(
-                            getDay(
-                                Timestamp.fromDate(tempEvent.startDateTime!)),
+                            tempEvent.startDateTime!.day.toString(),
                             textAlign: TextAlign.left,
                             softWrap: true,
                             style: const TextStyle(
                                 fontSize: 50, color: Colors.white),
                           ),
                           Text(
-                            getDate(
-                                Timestamp.fromDate(tempEvent.startDateTime!)),
+                            DateFormat(DateFormat.ABBR_MONTH)
+                                .format(tempEvent.startDateTime!),
                             textAlign: TextAlign.left,
                             softWrap: true,
                             style: const TextStyle(
                                 fontSize: 30, color: Colors.white),
                           ),
                           Text(
-                              getTime(
-                                  Timestamp.fromDate(tempEvent.startDateTime!)),
+                              DateFormat('HH:mm')
+                                  .format(tempEvent.startDateTime!),
                               textAlign: TextAlign.left,
                               softWrap: true,
                               style: const TextStyle(
@@ -219,21 +217,21 @@ class _EventCardState extends State<EventCard> {
                         height: 30,
                       ),
                       Text(
-                        getDay(Timestamp.fromDate(tempEvent.startDateTime!)),
+                        DateFormat(DateFormat.DAY)
+                            .format(tempEvent.startDateTime!),
                         textAlign: TextAlign.left,
                         softWrap: true,
                         style:
                             const TextStyle(fontSize: 50, color: Colors.white),
                       ),
                       Text(
-                        getDate(Timestamp.fromDate(tempEvent.startDateTime!)),
+                        DateFormat('dd').format(tempEvent.startDateTime!),
                         textAlign: TextAlign.left,
                         softWrap: true,
                         style:
                             const TextStyle(fontSize: 30, color: Colors.white),
                       ),
-                      Text(
-                          getTime(Timestamp.fromDate(tempEvent.startDateTime!)),
+                      Text(DateFormat('HH:mm').format(tempEvent.startDateTime!),
                           textAlign: TextAlign.left,
                           softWrap: true,
                           style: const TextStyle(

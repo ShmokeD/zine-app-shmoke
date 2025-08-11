@@ -1,5 +1,3 @@
-import 'package:zineapp2023/models/userTask.dart';
-
 class UserModel {
   String? email;
   int? id;
@@ -8,7 +6,6 @@ class UserModel {
   String? name;
   bool? registered = false;
   String? pushToken;
-  List<UserTask>? tasks = [];
   List<dynamic>? rooms = [];
   List<dynamic>? roomids = [];
   dynamic roomDetails = {};
@@ -22,7 +19,6 @@ class UserModel {
       this.name,
       this.type,
       this.dp,
-      this.tasks,
       this.registered,
       this.pushToken,
       this.lastSeen,
@@ -36,7 +32,6 @@ class UserModel {
     uid = json['uid'];
     name = json['name'];
     type = json['type'];
-    tasks = json['tasks'];
     dp = json['dp'];
     registered = json['registered'];
     pushToken = json['pushToken'];
@@ -52,7 +47,6 @@ class UserModel {
     data['uid'] = uid;
     data['name'] = name;
     data['type'] = type;
-    data['tasks'] = tasks;
     data['dp'] = dp;
     data['registered'] = registered;
     data['pushToken'] = pushToken;

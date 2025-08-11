@@ -1,7 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
-
-List<String> months = [
+const List<String> months = [
   'JAN',
   'FEB',
   'MAR',
@@ -26,15 +23,8 @@ bool isPastEvent(DateTime eventDate) {
       .isBefore(todayDate); // Returns true if the event is in the past
 }
 
-DateTime convertTimestamp(int timestamp) {
-  if (timestamp > 1000000000) {
-    // Convert from milliseconds
-    return DateTime.fromMillisecondsSinceEpoch(timestamp);
-  } else {
-    // Convert from seconds
-    return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-  }
-}
+
+
 
 String getChatTime(DateTime dateTime) {
   return '${dateTime.hour}:${dateTime.minute >= 10 ? dateTime.minute : '0${dateTime.minute}'}';
@@ -67,38 +57,4 @@ String getLastSeenFormat(int timeStamp) {
   } catch (e) {
     return "";
   }
-}
-
-//================================Older CODE========================================//
-
-String getTime(Timestamp timeStamp) {
-  return '${timeStamp.toDate().hour}:${timeStamp.toDate().minute >= 10 ? timeStamp.toDate().minute : '0${timeStamp.toDate().minute}'}';
-}
-
-String getDate(Timestamp timeStamp) {
-  return months[timeStamp.toDate().month - 1];
-}
-
-String getDay(Timestamp timeStamp) {
-  return '${timeStamp.toDate().day} ';
-}
-
-String getYear(Timestamp timeStamp) {
-  return '${timeStamp.toDate().year} ';
-}
-
-List<int> getDMY(Timestamp tmp) {
-  return [tmp.toDate().day, tmp.toDate().month, tmp.toDate().year];
-}
-
-String getDDMMYY(Timestamp timeStamp) {
-  return '${timeStamp.toDate().year},${timeStamp.toDate().month - 1},${timeStamp.toDate().day}';
-}
-
-String getDDMMYY2(Timestamp timeStamp) {
-  return '${timeStamp.toDate().year},${timeStamp.toDate().month},${timeStamp.toDate().day}';
-}
-
-String getDDate(DateTime dt) {
-  return DateFormat("yyyy-MM-dd").format(dt);
 }

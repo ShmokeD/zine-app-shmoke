@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:zineapp2023/database/database.dart';
@@ -28,37 +27,13 @@ class UserProv extends ChangeNotifier {
       logger.d("Firebase $token");
 
       _currUser.pushToken = token;
-      // print('Push Token: $t');
-      // updatePushToken();
-      // fMessaging.subscribeToTopic("Announcements");
-      // for (var rooms in _currUser.rooms!) {
-      //   fMessaging.subscribeToTopic(rooms);
-      // }
-      // }
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        // print('Got a message whilst in the foreground!');
-        // print('Message data: ${message.data}');
 
-        if (message.notification != null) {
-          //   print(
-          //       'Message also contained a notification: ${message.notification?.title}');
-          // }
-        }
-      });
       return token;
-    } on FirebaseException {
-      if (kDebugMode) print('Error in getFirebaseMessagingToken');
+    } catch (exception) {
+     logger.d('Error in getFirebaseMessagingToken');
       return null;
     }
-    // }
-  }
-
-  Future<void> updatePushToken() async {
-    // await _firebaseFirestore
-    //     .collection('users')
-    //     .doc(_currUser.uid)
-    //     .update({'pushToken': _currUser.pushToken});
   }
 
   void updateUserInfo(UserModel userModel) async {
@@ -93,7 +68,4 @@ class UserProv extends ChangeNotifier {
     AppDb.deleteLocalDb(db);
   }
 
-  // void updateLast(String name) {
-  //   _currUser.lastSeen[name] = Timestamp.fromDate(DateTime.now());
-  // }
 }

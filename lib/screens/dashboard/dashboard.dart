@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -390,10 +391,10 @@ class _DashboardState extends State<Dashboard> {
                             return Builder(
                               builder: (BuildContext context) {
                                 return GestureDetector(
-                                  onTap: () {
-                                    dashboardVm.launchUrl(
-                                        'https://zine.co.in/blogs/${DashboardVm.routes[i]!.toLowerCase()}');
-                                  },
+                                  onTap: () =>
+                                   launchUrlString(
+                                        'https://zine.co.in/blogs/${DashboardVm.routes[i]!.toLowerCase()}')
+                                  ,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5.5, vertical: 10),

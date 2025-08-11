@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/drift.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -57,7 +56,6 @@ class ChatRoomViewModel extends ChangeNotifier {
   final picker = ImagePicker();
   late MessageModel selectedReplyMessage;
 
-  Map<String, Timestamp> lastChats = {};
 
   //-------------------------------------------------message fetching using http--------------------//
   List<MessageModel> messages = [];
@@ -110,7 +108,7 @@ class ChatRoomViewModel extends ChangeNotifier {
   // }
 
   void subscribeToActiveMember(String currRoomID, AppDb db) {
-     _client.subscribe(
+    _client.subscribe(
         destination: "/room/$currRoomID/active-users",
         // headers: BackendProperties.getHeaders(),
         headers: {"roomId": currRoomID},
@@ -120,8 +118,8 @@ class ChatRoomViewModel extends ChangeNotifier {
             final List<dynamic> activeMemberData = json.decode(frame.body!);
             final List<String> activeMemberList =
                 activeMemberData.map((item) => item.toString()).toList();
-            currentRoomMembers =
-                await db.roomMemberDao.getRoomMembersByRoomId(int.parse(currRoomID));
+            currentRoomMembers = await db.roomMemberDao
+                .getRoomMembersByRoomId(int.parse(currRoomID));
             currentRoomMembers.forEach((key, value) {
               if (activeMemberList.contains(value.email)) {
                 value.isActive = true;
@@ -176,7 +174,7 @@ class ChatRoomViewModel extends ChangeNotifier {
                 messageRecieved.body!.timestamp!.toLocal();
             roomMessage = messageRecieved.toModel();
             messages.add(roomMessage);
-            messageKeys[roomMessage.id!] = GlobalKey();
+            messageKeys[roomMessage.id] = GlobalKey();
           }
           notifyListeners();
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -388,7 +386,8 @@ class ChatRoomViewModel extends ChangeNotifier {
       return currentRoomMembers[memberId.toString()];
     }
 
-    final roomMemberDB = await db.roomMemberDao.fetchRoomMemberById(int.parse(memberId));
+    final roomMemberDB =
+        await db.roomMemberDao.fetchRoomMemberById(int.parse(memberId));
     if (roomMemberDB == null) {
       return null;
     }
@@ -429,7 +428,8 @@ class ChatRoomViewModel extends ChangeNotifier {
             memberIds.add(roomMember.id);
           }
         });
-        await db.roomMemberDao.saveRoomMemberMapping(int.parse(roomId), memberIds);
+        await db.roomMemberDao
+            .saveRoomMemberMapping(int.parse(roomId), memberIds);
       }
     } catch (e) {
       logger.e("ERROR in saveRoomMemberToLocalDb: $e");
@@ -489,7 +489,9 @@ class ChatRoomViewModel extends ChangeNotifier {
     try {
       for (Rooms room in allRooms!) {
         final roomCompanion = RoomsTableCompanion(
-            id: room.id != null ? drift.Value(room.id!) : const drift.Value.absent(),
+            id: room.id != null
+                ? drift.Value(room.id!)
+                : const drift.Value.absent(),
             name: drift.Value(room.name),
             description: drift.Value(room.description),
             type: drift.Value(room.type),
@@ -638,7 +640,7 @@ class ChatRoomViewModel extends ChangeNotifier {
           // Handle poll data
           if (message.poll != null) {
             final pollCompanion = PollTableCompanion(
-              id: drift.Value(message.id!),
+              id: drift.Value(message.id),
               title: drift.Value(message.poll!.title),
               description: drift.Value(message.poll!.description),
               lastVoted: drift.Value(message.poll!.lastVoted),
@@ -651,7 +653,7 @@ class ChatRoomViewModel extends ChangeNotifier {
             for (var option in message.poll!.pollOptions) {
               final pollOptionCompanion = PollOptionTableCompanion(
                 id: drift.Value(option.id),
-                pollId: drift.Value(message.id!),
+                pollId: drift.Value(message.id),
                 value: drift.Value(option.value),
                 numVotes: drift.Value(option.numVotes),
                 voterId: option.voterIds != null &&
@@ -704,9 +706,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
           // Handle message data
           final messageCompanion = MessagesTableCompanion(
-            id: message.id != null
-                ? drift.Value(message.id!)
-                : const drift.Value.absent(),
+            id: drift.Value(message.id),
             type: drift.Value(message.type.toString().split('.').last),
             timestamp: drift.Value(message.timestamp!.millisecondsSinceEpoch),
             sentFromId: message.sender?.id != null
@@ -719,11 +719,11 @@ class ChatRoomViewModel extends ChangeNotifier {
             textData: message.type == MessageType.text && message.text != null
                 ? drift.Value(message.text!.content)
                 : const drift.Value.absent(),
-            pollId: message.type == MessageType.poll && message.id != null
-                ? drift.Value(message.id!)
+            pollId: message.type == MessageType.poll
+                ? drift.Value(message.id)
                 : const drift.Value.absent(),
-            fileId: message.type == MessageType.file && message.id != null
-                ? drift.Value(message.id!)
+            fileId: message.type == MessageType.file
+                ? drift.Value(message.id)
                 : const drift.Value.absent(),
             roomId: drift.Value(int.parse(messageRoomId.toString())),
           );
@@ -746,7 +746,8 @@ class ChatRoomViewModel extends ChangeNotifier {
       AppDb db, String roomID) async {
     try {
       loadingAPIMessages = true;
-      List<MessageResponseModel>? allMessages = await chatP.getChatMessages(roomID) ;
+      List<MessageResponseModel>? allMessages =
+          await chatP.getChatMessages(roomID);
       loadingAPIMessages = false;
       if (allMessages.isEmpty) {
         return;
@@ -844,7 +845,7 @@ class ChatRoomViewModel extends ChangeNotifier {
         // Create MessageModel
         final tempMessage = MessageModel(
           id: message.id,
-          type: MessageType.values.byName(message.type!),
+          type: MessageType.values.byName(message.type),
           text: TextData(content: message.textData),
           file: file,
           poll: poll,
@@ -1047,7 +1048,7 @@ class ChatRoomViewModel extends ChangeNotifier {
       "optionId": optionId,
     };
     int pollIndex = messages.indexWhere(
-      (element) => element.id! == messageId,
+      (element) => element.id == messageId,
     );
 
     if (messages[pollIndex].poll!.lastVoted != null) {
@@ -1247,8 +1248,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   void sendFile(String description) async {
     if (!_client.connected) {
-
-        logger.e("Not connected to the WebSocket server.");
+      logger.e("Not connected to the WebSocket server.");
 
       return;
     }
@@ -1287,7 +1287,6 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   void addRouteListener(
       BuildContext context, var room, var user, UserProv userProv) {
-
     ModalRoute.of(context)?.popped.then((_) {
       updateUnreadMessagesToZero(currRoomId);
     });

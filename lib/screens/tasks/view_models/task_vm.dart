@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:zineapp2023/models/task_instance.dart';
-import 'package:zineapp2023/models/userTask.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/tasks/repo/task_instance_repo.dart';
 import 'package:zineapp2023/utilities/custom_logger.dart';
@@ -17,7 +16,6 @@ class TaskVm extends ChangeNotifier {
       required this.taskInstanceRepo,
       required this.userProv});
 
-  List<UserTask>? tasks = [];
   List<UserTaskInstance> taskInstances = []; //[UserTask.fromJson(json)];
   List<Checkpoint> _currCheckpoints = [];
   List<Link> _currLinks = [];
@@ -48,7 +46,6 @@ class TaskVm extends ChangeNotifier {
   int curr = 0;
   int prevLen = 0;
 
-  // get tasks => _tasks;
 
   void getTaskInstances() async {
     //TODO: FAILED HOST LOOKUP

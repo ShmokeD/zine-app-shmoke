@@ -1,7 +1,6 @@
 import "package:flutter/material.dart";
 //import 'package:table_calendar/table_calendar.dart';
 import 'package:zineapp2023/models/events.dart';
-import 'package:zineapp2023/screens/dashboard/repo/dash_repo.dart';
 
 import '../../../common/data_store.dart';
 import '../../../providers/user_info.dart';
@@ -9,7 +8,6 @@ import '../../../providers/user_info.dart';
 class DashboardVm extends ChangeNotifier {
   final DataStore store;
   final UserProv userProv;
-  final dashRepo = DashRepo();
   static const Map<String, String> routes = {
     "ALGORITHMS": "ALGO",
     "BEE": "BEE",
@@ -39,7 +37,5 @@ class DashboardVm extends ChangeNotifier {
   // }
 
 
-  void launchUrl(url) {
-    dashRepo.launchUrlStart(url: url.toString());
-  }
+
 }

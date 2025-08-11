@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:zineapp2023/backend_properties.dart';
 import 'package:zineapp2023/common/loaderScreen.dart';
 import 'package:zineapp2023/providers/dictionary.dart';
@@ -32,10 +33,10 @@ class WorkshopScreen extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: ElevatedButton(
-                            onPressed: () {
-                              dashVm
-                                  .launchUrl(BackendProperties.recruitmentUri);
-                            },
+                            onPressed: () =>
+                              launchUrlString(BackendProperties.recruitmentUri),
+
+
                             style: ButtonStyle(
                               padding: WidgetStateProperty.all(
                                   const EdgeInsets.all(20.0)),
