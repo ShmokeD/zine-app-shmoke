@@ -547,7 +547,7 @@ class ChatRoomViewModel extends ChangeNotifier {
 
     try {
       // Fetch the raw data from local database
-      List<Room> temp = await db.getAllAnnouncementsDB();
+      List<Room> temp = await db.roomDao.getAllAnnouncementsDB();
       List<Rooms> announcementData;
       // Map the fetched data to Rooms objects
       logger.t("Fetched Announcement data: $temp");

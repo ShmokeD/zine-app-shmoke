@@ -26,7 +26,7 @@ class MessageResponseModel {
 
   MessageResponseModel.fromJson(Map<String, dynamic> json)
       : type = MessageType.values.byName(json['type'] ?? 'text'),
-      id =  int.parse(json['id']),
+      id =  (json['id'] is int) ? json['id'] :  int.parse(json['id']),
 
         replyTo =
             json['replyTo'] != null ? ReplyTo.fromJson(json['replyTo']) : null,

@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_notification_channel/flutter_notification_channel.dart';
+import 'package:flutter_notification_channel/notification_importance.dart';
 import 'package:provider/provider.dart';
+import 'package:zineapp2023/background/firebase_options.dart';
 import 'package:zineapp2023/common/navigator.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/utilities/custom_logger.dart';
@@ -12,31 +15,40 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 final logger = customLogger();
 
-//------------------------------local notification plugin setup-----------------------------------//
 Future<void> initializeNotifications() async {
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  const InitializationSettings initializationSettings =
-      InitializationSettings(android: initializationSettingsAndroid);
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+    criticalAlert: true,
+  );
+
+  await messaging.setForegroundNotificationPresentationOptions(
+      alert: true, badge: true, sound: true);
+
+  await FlutterNotificationChannel().registerNotificationChannel(
+      description: 'For Showing Message Notification',
+      id: 'chats',
+      importance: NotificationImportance.IMPORTANCE_HIGH,
+      name: 'Chats');
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'));
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  FirebaseMessaging.onMessage.listen(foregroundMessageCallback);
 }
 
-//--------------------------------backend Message Listener----------------------------------------//
-// ignore: unused_element
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
 
-  logger.d("Handling a background message: ${message.messageId}");
-}
-
-//--------------------------------show foreground notification------------------------------------//
 Future<void> _showNotification({String? title, String? body}) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails('your_channel_id', 'your_channel_name',
+      AndroidNotificationDetails('chats', 'Chats',
           importance: Importance.max,
           priority: Priority.high,
           playSound: true,
@@ -45,7 +57,7 @@ Future<void> _showNotification({String? title, String? body}) async {
       NotificationDetails(android: androidPlatformChannelSpecifics);
 
   await flutterLocalNotificationsPlugin.show(
-    0, // Notification ID
+    0,
     title,
     body,
     platformChannelSpecifics,
@@ -53,35 +65,31 @@ Future<void> _showNotification({String? title, String? body}) async {
   );
 }
 
-//-------------------------------------listen notification by FCM--------------------------//
-void setupForegroundMessageListener() {
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    logger.t(
-        "message data:${message.data}  message notification data:${message.notification?.body}");
-    if (message.notification != null) {
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // String? storedRoomName = prefs.getString("roomName");
+void foregroundMessageCallback(RemoteMessage message) async {
+  logger.t(
+      "message data:${message.data}  message notification data:${message.notification?.body}");
 
-      ChatRoomViewModel chatRoomView = Provider.of<ChatRoomViewModel>(
-          NavigationService.navigatorKey.currentContext!,
-          listen: false);
-      var db = Provider.of<AppDb>(
-          NavigationService.navigatorKey.currentContext!,
-          listen: false);
-      logger.d("message roomID:${message.data['roomId']}");
-      logger.d("chatRoomView.roomId:${chatRoomView.currRoomId}");
-      chatRoomView.fetchAllRoomDataFromApiAndSyncWithDB(db);
-      if (message.data['roomId'] != chatRoomView.currRoomId) {
-        await _showNotification(
-          title: message.notification!.title,
-          body: message.notification!.body,
-        );
-      }
+  if (message.notification != null) {
+    //Get the currently visible room's context.
+    ChatRoomViewModel chatRoomView = Provider.of<ChatRoomViewModel>(
+        NavigationService.navigatorKey.currentContext!,
+        listen: false);
 
-      // Provider.of<ChatRoomViewModel>(
-      //   NavigationService.navigatorKey.currentContext!,
-      //   listen: false,
-      // ).loadRooms();
+    var db = Provider.of<AppDb>(NavigationService.navigatorKey.currentContext!,
+        listen: false);
+
+    logger.d("message roomID:${message.data['roomId']}");
+    logger.d("chatRoomView.roomId:${chatRoomView.currRoomId}");
+
+    //Also Sync other rooms when we are notified of a change
+    chatRoomView.fetchAllRoomDataFromApiAndSyncWithDB(db);
+
+    // Only Show notification if its not about our current room
+    if (message.data['roomId'] != chatRoomView.currRoomId) {
+      await _showNotification(
+        title: message.notification!.title,
+        body: message.notification!.body,
+      );
     }
-  });
+  }
 }
