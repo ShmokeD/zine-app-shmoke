@@ -44,7 +44,6 @@ class AuthRepo {
       throw AuthException(code: 'no-connect');
     } catch (e) {
       throw AuthException(code: resBody['failureReason'] ?? 'unknown');
-
     }
   }
 
@@ -104,6 +103,8 @@ class AuthRepo {
     } on SocketException {
       logger.e('no-connect');
       throw AuthException(code: 'no-connect');
+    } on AuthException {
+      rethrow;
     } catch (e) {
       logger.e(e);
       throw AuthException(code: resBody['failureReason'] ?? 'unknown');
@@ -123,10 +124,13 @@ class AuthRepo {
       });
 
       if (res.statusCode != 200 || res.body.isEmpty) throw Exception();
-      logger.d('User Body ${res.body}');
+
       Map<String, dynamic> user = jsonDecode(res.body);
       NewUserModel userData = NewUserModel.fromJson(user);
       await db.userDao.upsertUserDB(userData);
+
+      logger.d("User:");
+      logger.d(userData);
 
       UserModel userMod = UserModel(
           uid: uid,
@@ -141,6 +145,8 @@ class AuthRepo {
       return userMod;
     } on TimeoutException {
       throw AuthException(code: 'no-connect');
+    } on AuthException {
+      rethrow;
     } catch (e) {
       logger.e("Non TimeoutException Error in GetUserByID $e");
       throw AuthException(code: 'unknown');

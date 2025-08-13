@@ -50,12 +50,11 @@ class ChatRoomViewModel extends ChangeNotifier {
   dynamic replyUsername;
   FocusNode replyfocus = FocusNode();
 
-  String currRoomId = "645";
+  String currRoomId = "";
   final name = "Announcement";
   Map<String, dynamic> chatSubscription = {};
   final picker = ImagePicker();
   late MessageModel selectedReplyMessage;
-
 
   //-------------------------------------------------message fetching using http--------------------//
   List<MessageModel> messages = [];
@@ -208,6 +207,8 @@ class ChatRoomViewModel extends ChangeNotifier {
 
   //---------------------------------------------MODIFY: ADD multiple subscribtion->----------------//
   void unsubscribeFromRoom(String roomId) {
+    if (roomId.isEmpty) return;
+
     logger.i("attempting to unsubscribe roomId:$roomId");
     final subscription = _subscriptions[roomId];
     if (subscription != null) {
