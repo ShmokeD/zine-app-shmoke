@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
-
 
 // User Messages (Right side)
 const Color userColor =
@@ -88,16 +86,24 @@ class _PollTileState extends State<PollTile> {
           ?.id;
     }
     final totalVotes = _calculateTotalVotes(message.poll!.pollOptions);
-    final screenWidth= MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
     return Padding(
       padding: widget.isUser
-          ? const EdgeInsets.only(top: 10, left: 40, right: 10)
-          : EdgeInsets.only(top: 10, right: 40, left: screenWidth*0.135), // Added padding
+          ? EdgeInsets.only(left: screenWidth * 0.2)
+          : EdgeInsets.only(right: screenWidth * 0.2),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         decoration: BoxDecoration(
           color: widget.isUser ? userColor : otherColor,
-          borderRadius: BorderRadius.only(topLeft: const Radius.circular(20.0),topRight: const Radius.circular(20.0),bottomLeft: widget.isUser?const Radius.circular(20.0):const Radius.circular(0.0),bottomRight: widget.isUser?const Radius.circular(0.0):const Radius.circular(20.0)),
+          borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(20.0),
+              topRight: const Radius.circular(20.0),
+              bottomLeft: widget.isUser
+                  ? const Radius.circular(20.0)
+                  : const Radius.circular(0.0),
+              bottomRight: widget.isUser
+                  ? const Radius.circular(0.0)
+                  : const Radius.circular(20.0)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

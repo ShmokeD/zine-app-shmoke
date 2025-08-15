@@ -1,69 +1,48 @@
-import 'dart:io';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:swipe_to/swipe_to.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
+import 'package:zineapp2023/models/message.dart';
 import 'package:zineapp2023/providers/user_info.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/components/empty_chat_widget.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/file_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/poll_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
-import 'package:zineapp2023/screens/dashboard/view_models/dashboard_vm.dart';
+import 'package:zineapp2023/theme/color.dart';
+import 'package:zineapp2023/utilities/date_time.dart';
+import 'components/text_message_widget.dart';
 
-import '../../../models/message.dart';
-import '../../../theme/color.dart';
-import '../../../utilities/date_time.dart';
+class ChatsScreen extends StatelessWidget {
+  final dynamic reply;
 
-const Color userColor = Color.fromARGB(255, 104, 181, 228);
-const Color userSelectedTextColor = Color.fromARGB(255, 255, 255, 255);
-const Color otherColor = Color(0xff0c72b0);
-const Color otherSelectedTextColor = Color(0xffE8F2FC); // Dark blue text
+  const ChatsScreen({
+    super.key,
+    this.reply,
+  });
 
-Widget chatV(BuildContext context,DashboardVm dashVm, dynamic reply) {
-  ChatRoomViewModel chatRoomViewModel =
-      Provider.of<ChatRoomViewModel>(context, listen: true);
-  List<MessageModel> chats = chatRoomViewModel.messages;
-  UserProv userVm = Provider.of<UserProv>(context, listen: true);
-  // If there are no messages
+  @override
+  Widget build(BuildContext context) {
+    ChatRoomViewModel chatRoomViewModel =
+        Provider.of<ChatRoomViewModel>(context, listen: true);
+    List<MessageModel> chats = chatRoomViewModel.messages;
+    UserProv userVm = Provider.of<UserProv>(context, listen: true);
 
-  if (chats.isEmpty && chatRoomViewModel.loadingAPIMessages) {
-    return const Expanded(
-      child: Center(
-        child: CircularProgressIndicator(
-          color: Colors.blue,
+    if (chatRoomViewModel.loadingAPIMessages) {
+      return const Expanded(
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Colors.blue,
+          ),
         ),
-      ),
-    );
-  } else if (chats.isEmpty) {
-    return const Expanded(
-      child: Center(
-        child: Column(
-          children: [
-            Spacer(),
-            Icon(
-              Icons.message,
-              size: 50,
-              color: textDarkBlue,
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Text(
-              'No Messages',
-              style: TextStyle(fontSize: 20),
-            ),
-            Spacer(),
-          ],
-        ),
-      ),
-    );
-  } else {
+      );
+    }
+
+    if (chats.isEmpty) {
+      return const EmptyChatWidget();
+    }
+
     return Flexible(
-      // Flexible prevents overflow error when keyboard is opened
-
       child: GestureDetector(
         onTap: () {
           FocusScopeNode currentFocus = FocusScope.of(context);
@@ -75,484 +54,171 @@ Widget chatV(BuildContext context,DashboardVm dashVm, dynamic reply) {
           controller: chatRoomViewModel.scrollController,
           padding: const EdgeInsets.all(8.0),
           reverse: true,
-          // physics: NeverScrollableScrollPhysics(),
           dragStartBehavior: DragStartBehavior.down,
           shrinkWrap: true,
           itemCount: chats.length,
           itemBuilder: (BuildContext context, int index) {
             chats[index].timestamp = chats[index].timestamp!.toLocal();
-            // print(
-            //     "chats length:${index} and userVm.getUserInfo.name${userVm.getUserInfo.name}");
             var currIndx = chats.length - index - 1;
+
             chatRoomViewModel.messageKeys[chats[currIndx].id] = GlobalKey();
+
             bool isUser = (userVm.getUserInfo.id == chats[currIndx].sender!.id);
-            var showDate = index == chats.length - 1 ||
-                (chats.length - index >= 2 &&
-                    validShowDate(chats[currIndx].timestamp!) !=
-                        validShowDate(
-                            chats[chats.length - index - 2].timestamp!));
-
-            bool group = index > 0 &&
-                chats[currIndx].sender!.id ==
-                    chats[chats.length - index].sender?.id &&
-                getChatDate(chats[currIndx].timestamp!) ==
-                    getChatDate(chats[chats.length - index].timestamp!);
-
-            MessageModel? repliedMessage;
-            // print("reply to:${chats[currIndx].replyTo}");
-            if (chats[currIndx].replyToId != null) {
-              repliedMessage = chatRoomViewModel.userGetMessageById(
-                  chats, chats[currIndx].replyToId.toString());
-            }
-
-            if (chats[currIndx].type == MessageType.text) {
-              return chats[currIndx].text == null
-                  ? Container()
-                  : KeyedSubtree(
-                      key: chatRoomViewModel.messageKeys[chats[currIndx].id],
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            repliedMessage != null
-                                ? Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 10, 0, 5),
-                                    child: Padding(
-                                      padding: userVm.getUserInfo.id !=
-                                              chats[currIndx].sender!.id
-                                          //currUser.name != chats[currIndx].from
-                                          ? const EdgeInsets.symmetric(
-                                              horizontal: 35.0)
-                                          : const EdgeInsets.all(0),
-                                      child: Text(
-                                        "${isUser ? "You" : chats[currIndx].sender?.name} replied to ${repliedMessage.sender?.name}",
-                                        textAlign: isUser
-                                            ? TextAlign.right
-                                            : TextAlign.left,
-                                        style: const TextStyle(
-                                            color: greyText, fontSize: 11),
-                                      ),
-                                    ),
-                                  )
-                                : Container(),
-                            repliedMessage != null
-                                ? Row(
-                                    // direction: Axis.horizontal,
-                                    mainAxisAlignment: isUser
-                                        ? MainAxisAlignment.end
-                                        : MainAxisAlignment.start,
-                                    crossAxisAlignment: isUser
-                                        ? CrossAxisAlignment.end
-                                        : CrossAxisAlignment.start,
-                                    children: [
-                                      isUser
-                                          ? Container()
-                                          : const CircleAvatar(
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              child: Padding(
-                                                padding: EdgeInsets.all(3.0),
-                                              ),
-                                            ),
-                                      isUser
-                                          ? IntrinsicHeight(
-                                              child: Column(
-                                                children: [
-                                                  InkWell(
-                                                    onTap: () => {
-                                                      if (repliedMessage !=
-                                                          null)
-                                                        {
-                                                          WidgetsBinding
-                                                              .instance
-                                                              .addPostFrameCallback(
-                                                                  (_) {
-                                                            chatRoomViewModel
-                                                                .scrollToFocusedMessage(
-                                                                    repliedMessage!
-                                                                        .id);
-                                                          })
-                                                        }
-                                                    },
-                                                    child: Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                        color: backgroundGrey,
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                          topRight:
-                                                              Radius.circular(
-                                                                  10.0),
-                                                          topLeft:
-                                                              Radius.circular(
-                                                                  20.0),
-                                                          bottomLeft:
-                                                              Radius.circular(
-                                                                  20.0),
-                                                          bottomRight:
-                                                              Radius.circular(
-                                                                  10.0),
-                                                        ),
-                                                      ),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(12.0),
-                                                        child: Text(
-                                                          repliedMessage.type ==
-                                                                  MessageType
-                                                                      .text
-                                                              ? (repliedMessage
-                                                                              .text!
-                                                                              .content
-                                                                              .toString())
-                                                                          .length >
-                                                                      20
-                                                                  ? '${repliedMessage.text!.content.toString().substring(0, 20)}...'
-                                                                  : repliedMessage
-                                                                      .text!
-                                                                      .content
-                                                                      .toString()
-                                                              : " ",
-                                                          // softWrap: true,
-                                                          textAlign:
-                                                              TextAlign.right,
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 13),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          : IntrinsicHeight(
-                                              child: Column(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 4),
-                                                    child: Container(
-                                                      color: userColor,
-                                                      width: 4,
-                                                      child: const Padding(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                vertical: 12.0),
-                                                        child: Text(
-                                                          "",
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                      isUser
-                                          ? IntrinsicHeight(
-                                              child: Column(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 4),
-                                                    child: Container(
-                                                      color: otherColor,
-                                                      width: 4,
-                                                      child: const Padding(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                vertical: 12.0),
-                                                        child: Text(
-                                                          "       ",
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                          : IntrinsicHeight(
-                                              child: Column(
-                                                children: [
-                                                  InkWell(
-                                                    onTapCancel: () => {
-                                                      if (repliedMessage !=
-                                                          null)
-                                                        {
-                                                          WidgetsBinding
-                                                              .instance
-                                                              .addPostFrameCallback(
-                                                                  (_) {
-                                                            chatRoomViewModel
-                                                                .scrollToFocusedMessage(
-                                                                    repliedMessage!
-                                                                        .id);
-                                                          })
-                                                        }
-                                                    },
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                          color: backgroundGrey,
-                                                          borderRadius: userVm
-                                                                      .getUserInfo
-                                                                      .id !=
-                                                                  chats[currIndx]
-                                                                      .sender
-                                                                      ?.id
-                                                              ? const BorderRadius.only(
-                                                                  topRight:
-                                                                      Radius.circular(
-                                                                          15.0),
-                                                                  topLeft:
-                                                                      Radius.circular(
-                                                                          5.0),
-                                                                  bottomLeft:
-                                                                      Radius.circular(
-                                                                          5.0),
-                                                                  bottomRight:
-                                                                      Radius.circular(
-                                                                          15.0))
-                                                              : const BorderRadius.only(
-                                                                  topRight:
-                                                                      Radius.circular(5.0),
-                                                                  topLeft: Radius.circular(15.0),
-                                                                  bottomLeft: Radius.circular(15.0),
-                                                                  bottomRight: Radius.circular(5.0))),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(12.0),
-                                                        child: Text(
-                                                          repliedMessage.text!
-                                                                      .content
-                                                                      .toString()
-                                                                      .length >
-                                                                  20
-                                                              ? "${repliedMessage.text!.content.toString().substring(0, 20)} . . ."
-                                                              : repliedMessage
-                                                                  .text!.content
-                                                                  .toString(),
-                                                          textAlign:
-                                                              TextAlign.right,
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .black
-                                                                  .withValues(
-                                                                      alpha:
-                                                                          0.5),
-                                                              fontSize: 13),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            )
-                                    ],
-                                  )
-                                : Container(),
-                            if (showDate)
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  DateFormat.yMMMMd()
-                                      .format((chats[currIndx].timestamp!))
-                                      .toString(),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(color: greyText),
-                                ),
-                              ),
-                            Container(
-                              alignment: isUser
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
-                              child: SwipeTo(
-                                onRightSwipe: (details) {
-                                  // print(details);
-                                  chatRoomViewModel
-                                      .userReplyText(chats[currIndx]);
-                                  chatRoomViewModel.replyfocus.requestFocus();
-                                },
-                                child: ListTile(
-                                  horizontalTitleGap: 6,
-                                  contentPadding: EdgeInsets.zero,
-                                  dense: true,
-                                  leading: isUser || group
-                                      ? CircleAvatar(
-                                          backgroundColor: const Color.fromARGB(
-                                              15, 255, 255, 255),
-                                          radius: 25,
-                                          child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(20.0),
-                                              child: Container()),
-                                        )
-                                      : File(chats[currIndx]
-                                                  .sender!
-                                                  .dp
-                                                  .toString())
-                                              .existsSync()
-                                          ? chatRoomViewModel.showProfileImage(
-                                              chats[currIndx]
-                                                  .sender!
-                                                  .dp
-                                                  .toString(),
-                                              radius: 50.0)
-                                          : chatRoomViewModel.customUserName(
-                                              chats[currIndx]
-                                                  .sender!
-                                                  .name
-                                                  .toString()), //
-
-                                  subtitle: group
-                                      ? null
-                                      : Padding(
-                                          padding: const EdgeInsets.all(6.0),
-                                          child: Align(
-                                            alignment: userVm.getUserInfo.id !=
-                                                    chats[chats.length -
-                                                            index -
-                                                            1]
-                                                        .sender
-                                                        ?.id
-                                                ? Alignment.bottomLeft
-                                                : Alignment.bottomRight,
-                                            child: group
-                                                ? const Text("")
-                                                : Text(
-                                                    "${chats[currIndx].sender!.name}     ${getChatTime(chats[currIndx].timestamp!)}",
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 10.0,
-                                                      color: Color.fromARGB(
-                                                          255, 92, 20, 20),
-                                                    ),
-                                                  ),
-                                          ),
-                                        ),
-                                  title: Wrap(
-                                    crossAxisAlignment: WrapCrossAlignment.end,
-                                    alignment: isUser
-                                        ? WrapAlignment.end
-                                        : WrapAlignment.start,
-                                    direction: Axis.horizontal,
-                                    children: [
-                                      // Text("Something"),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: userVm.getUserInfo.id ==
-                                                  chats[chats.length -
-                                                          index -
-                                                          1]
-                                                      .sender
-                                                      ?.id
-                                              ? userColor
-                                              : otherColor,
-                                          borderRadius: BorderRadius.only(
-                                              topLeft:
-                                                  const Radius.circular(15.0),
-                                              topRight:
-                                                  const Radius.circular(15.0),
-                                              bottomRight: userVm
-                                                          .getUserInfo.id ==
-                                                      chats[chats.length -
-                                                              index -
-                                                              1]
-                                                          .sender
-                                                          ?.id
-                                                  ? const Radius.circular(0.0)
-                                                  : const Radius.circular(15.0),
-                                              bottomLeft: userVm
-                                                          .getUserInfo.id ==
-                                                      chats[chats.length -
-                                                              index -
-                                                              1]
-                                                          .sender
-                                                          ?.id
-                                                  ? const Radius.circular(15.0)
-                                                  : const Radius.circular(0.0)),
-                                          // border: Border.all(color: greyText, width: 2.0),
-                                        ),
-                                        // margin: const EdgeInsets.all(8),
-                                        padding: const EdgeInsets.all(4),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10.0),
-                                          child: SelectableLinkify(
-                                            text: chats[currIndx]
-                                                .text!
-                                                .content
-                                                .toString(),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 18.0,
-                                              color: userVm.getUserInfo.id ==
-                                                      chats[chats.length -
-                                                              index -
-                                                              1]
-                                                          .sender
-                                                          ?.id
-                                                  ? userSelectedTextColor
-                                                  : otherSelectedTextColor,
-                                            ),
-                                            onOpen: (link) =>
-                                                launchUrlString(link.url),
-                                            linkStyle: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 18.0,
-                                              color: userVm.getUserInfo.id ==
-                                                      chats[chats.length -
-                                                              index -
-                                                              1]
-                                                          .sender
-                                                          ?.id
-                                                  ? userSelectedTextColor
-                                                  : otherSelectedTextColor,
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ]),
-                    );
-            } else if (chats[currIndx].type == MessageType.poll &&
-                chats[currIndx].poll != null) {
-              return KeyedSubtree(
-                key: chatRoomViewModel.messageKeys[chats[currIndx].id],
-                child: PollTile(
-                  group: group,
-                  chatVm: chatRoomViewModel,
-                  message: chats[currIndx],
-                  isUser: chats[currIndx].sender!.id == userVm.getUserInfo.id,
-                  onVote: (optionId) => chatRoomViewModel.sendPollResponse(
-                      chats[currIndx].id, optionId),
+            bool showDate = _shouldShowDate(index, currIndx, chats);
+            bool group = _isGroupedMessage(index, currIndx, chats);
+            MessageModel? repliedMessage =
+                _getRepliedMessage(currIndx, chats, chatRoomViewModel);
+            Sender sender = chats[currIndx].sender!;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (showDate) _buildDateSeparator(chats[currIndx].timestamp!),
+                Container(
+                  alignment:
+                      isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Row(
+                    mainAxisAlignment: isUser
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (!isUser)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: _buildProfilePicture(
+                              isUser, group, sender.name, sender.dp),
+                        ),
+                      Flexible(
+                        child: _buildMessageWidget(
+                          chats[currIndx],
+                          isUser,
+                          group,
+                          repliedMessage,
+                          chatRoomViewModel,
+                          userVm,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            } else if (chats[currIndx].type == MessageType.file &&
-                chats[currIndx].file != null) {
-              return FileTile(
-                chatRoomViewModel: chatRoomViewModel,
-                group: group,
-                message: chats[currIndx],
-                isUser: isUser,
-              );
-            } else {
-              return Container();
-            }
-            // else{ return Container();}
+                if (!group) _buildMessageMetadata(chats[currIndx], isUser),
+              ],
+            );
           },
         ),
       ),
     );
   }
+}
 
-  // print(chats);
-  // print(MessageModel.store());
+bool _shouldShowDate(int index, int currIndx, List<MessageModel> chats) {
+  return index == chats.length - 1 ||
+      (chats.length - index >= 2 &&
+          validShowDate(chats[currIndx].timestamp!) !=
+              validShowDate(chats[chats.length - index - 2].timestamp!));
+}
+
+bool _isGroupedMessage(int index, int currIndx, List<MessageModel> chats) {
+  return index > 0 &&
+      chats[currIndx].sender!.id == chats[chats.length - index].sender?.id &&
+      getChatDate(chats[currIndx].timestamp!) ==
+          getChatDate(chats[chats.length - index].timestamp!);
+}
+
+MessageModel? _getRepliedMessage(int currIndx, List<MessageModel> chats,
+    ChatRoomViewModel chatRoomViewModel) {
+  if (chats[currIndx].replyToId != null) {
+    return chatRoomViewModel.userGetMessageById(
+        chats, chats[currIndx].replyToId.toString());
+  }
+  return null;
+}
+
+Widget _buildProfilePicture(bool isUser, bool group, String name, String? dp) {
+  if (group) {
+    return const SizedBox(
+      height: 40,
+      width: 40,
+    );
+  }
+
+  return ProfilePicture(
+    name: name,
+    dp: dp,
+  );
+}
+
+Widget _buildDateSeparator(DateTime date) {
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Text(
+      DateFormat.yMMMMd().format(date).toString(),
+      textAlign: TextAlign.center,
+      style: const TextStyle(color: greyText),
+    ),
+  );
+}
+
+Widget _buildMessageMetadata(MessageModel message, bool isUser) {
+  return Padding(
+    padding: EdgeInsets.only(
+      left: isUser ? 0 : 58, // Account for avatar space
+      right: isUser ? 8 : 0,
+      top: 4,
+      bottom: 8,
+    ),
+    child: Text(
+      "${message.sender!.name}  •  ${getChatTime(message.timestamp!)}",
+      textAlign: isUser ? TextAlign.right : TextAlign.left,
+      style: const TextStyle(
+        fontWeight: FontWeight.w400,
+        fontSize: 11.0,
+        color: Color.fromARGB(255, 92, 92, 92),
+      ),
+    ),
+  );
+}
+
+Widget _buildMessageWidget(
+  MessageModel message,
+  bool isUser,
+  bool group,
+  MessageModel? repliedMessage,
+  ChatRoomViewModel chatRoomViewModel,
+  UserProv userVm,
+) {
+  if (message.type == MessageType.text && message.text != null) {
+    return TextMessageWidget(
+      key: chatRoomViewModel.messageKeys[message.id],
+      message: message,
+      isUser: isUser,
+      repliedMessage: repliedMessage,
+      chatRoomViewModel: chatRoomViewModel,
+      userVm: userVm,
+    );
+  } else if (message.type == MessageType.poll && message.poll != null) {
+    return KeyedSubtree(
+      key: chatRoomViewModel.messageKeys[message.id],
+      child: PollTile(
+        group: group,
+        chatVm: chatRoomViewModel,
+        message: message,
+        isUser: message.sender!.id == userVm.getUserInfo.id,
+        onVote: (optionId) =>
+            chatRoomViewModel.sendPollResponse(message.id, optionId),
+      ),
+    );
+  } else if (message.type == MessageType.file && message.file != null) {
+    return KeyedSubtree(
+      key: chatRoomViewModel.messageKeys[message.id],
+      child: FileTile(
+        chatRoomViewModel: chatRoomViewModel,
+        group: group,
+        message: message,
+        isUser: isUser,
+      ),
+    );
+  }
+
+  return Container();
 }

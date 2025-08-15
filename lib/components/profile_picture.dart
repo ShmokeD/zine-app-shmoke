@@ -1,36 +1,72 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:zineapp2023/theme/color.dart';
 
 class ProfilePicture extends StatelessWidget {
-  final String dp, name;
-  final double size;
+  final String? dp;
+  final String name;
+  final double radius;
 
   const ProfilePicture(
-      {super.key, required this.dp, required this.name, this.size = 20});
+      {super.key, this.dp, required this.name, this.radius = 20});
 
   @override
   Widget build(BuildContext context) {
-    Map<String, Color> colours = getDpColours(name);
-    Color backgroundColour = colours['background']!;
-    Color textColour = colours['text']!;
+    if (dp == null || dp!.isEmpty) {
+      return FallbackAvatarNameWidget(
+        name: name,
+        radius: radius,
+      );
+    }
+    return CircleAvatar(
+        radius: radius,
+        foregroundImage: FileImage(File(dp!)),
+        backgroundImage: CachedNetworkImageProvider(
+          dp!,
+        ));
+  }
+}
 
-    double width = size * 2.0;
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      constraints: BoxConstraints(
-          minWidth: width, minHeight: width, maxHeight: width, maxWidth: width),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15), color: backgroundColour),
-      child: CachedNetworkImage(
-        imageUrl: dp,
-        fit: BoxFit.cover,
-        errorWidget: (_, __, ___) => Center(
-            child: Text(
-          name.substring(0, 1).toUpperCase(),
-          style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: size, color: textColour),
-        )),
+class FallbackAvatarNameWidget extends StatelessWidget {
+  final String name;
+  final double radius;
+
+  const FallbackAvatarNameWidget(
+      {super.key, required this.name, required this.radius});
+
+  Color _generateBackgroundColor(String name) {
+    int hash = name.hashCode;
+    int colorIndex = hash % Colors.primaries.length;
+    return Colors.primaries[colorIndex];
+  }
+
+  Color _getContrastingTextColor(Color backgroundColor) {
+    double luminance = backgroundColor.computeLuminance();
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = _generateBackgroundColor(name);
+    final textColor = _getContrastingTextColor(backgroundColor);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: Container(
+        width: 2 * radius,
+        height: 2 * radius,
+        color: backgroundColor.withOpacity(0.8),
+        child: Center(
+          child: Text(
+            name.substring(0, 1).toUpperCase(),
+            style: TextStyle(
+              fontSize: radius * 1.1,
+              color: textColor,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ),
       ),
     );
   }

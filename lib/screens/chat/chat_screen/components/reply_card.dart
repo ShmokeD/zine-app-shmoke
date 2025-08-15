@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/theme/color.dart';
 
-class ReplyCard extends StatelessWidget {
+class ReplyPreviewCard extends StatelessWidget {
   final ChatRoomViewModel chatVm;
-  const ReplyCard({super.key, required this.chatVm});
+  const ReplyPreviewCard({super.key, required this.chatVm});
 
   @override
   Widget build(BuildContext context) {

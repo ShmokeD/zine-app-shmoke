@@ -49,26 +49,16 @@ class Channel extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      File(roomDetail.dpUrl.toString()).existsSync() ?  CircleAvatar(
+                      CircleAvatar(
                         backgroundColor: Colors.white,
                         radius: 20,
-                         child: chatVm.showProfileImage(roomDetail.dpUrl!,radius: 50.0),
-                        // foregroundImage:
-                        // roomDetail.dpUrl !=null ? CachedNetworkImageProvider(
-                        //   roomDetail.dpUrl!,
-                        //   errorListener: (p0) {
-                        //     // Handle Errors Gracefully and dont dump on the debug console
-                        //     if (kDebugMode) {
-                        //       print("Error in loading Image : $p0");
-                        //     }
-                        //   },
-                        // ):CachedNetworkImageProvider("assets/images/zine_logo.png"),
-                        // backgroundImage:
-                        //     const AssetImage("assets/images/zine_logo.png"),
-                      ):const CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 20,
-                          backgroundImage:AssetImage("assets/images/zine_logo.png")),
+                        foregroundImage: FileImage(
+                          File(roomDetail.dpUrl!),
+                        ),
+                        backgroundImage:
+                            const AssetImage("assets/images/zine_logo.png"),
+
+                      ),
                       const SizedBox(
                         width: 10,
                       ),
@@ -81,7 +71,7 @@ class Channel extends StatelessWidget {
                               ),
                             ))
                           : const Text(""),
-                      ],
+                    ],
                   ),
 
                   // -------------------modification for new unseen and lastseen--------------//

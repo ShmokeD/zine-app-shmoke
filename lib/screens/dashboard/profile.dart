@@ -4,8 +4,10 @@ import "package:flutter/material.dart";
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zineapp2023/components/gradient.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
+
 import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_model.dart';
 import 'package:zineapp2023/screens/dp_change_screen/dp_change_screen.dart';
 import 'package:zineapp2023/screens/onboarding/login/view_models/register_auth_vm.dart';
@@ -23,7 +25,7 @@ class ProfileScreen extends StatelessWidget {
       builder: (context, regVm, userProv, chatVm, _) {
         UserModel currUser = userProv.getUserInfo;
         Widget dp = File(currUser.dp!.toString()).existsSync()
-            ? chatVm.showProfileImage(currUser.dp!)
+            ? ProfilePicture(dp: currUser.dp!, name: currUser.name!)
             : CircleAvatar(
                 radius: 30,
                 backgroundColor: iconTile,
@@ -161,8 +163,8 @@ class ProfileScreen extends StatelessWidget {
                   color: Colors.white,
                   width: MediaQuery.of(context).size.width,
                   child: const Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 30.0, vertical: 20.0),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/theme/color.dart';
 
 import '../../../models/newUser.dart';
@@ -43,35 +44,16 @@ class ChatDescription extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                      color: Colors.transparent,
-                      padding: const EdgeInsets.all(10.0),
-                      child: File(image).existsSync()
-                          ? chatVm.showProfileImage(image,
-                              height: 100.0, width: 100.0)
-                          // Image.file(
-                          //   File(image),
-                          //   fit: BoxFit.cover, // Ensures the image covers the circle
-                          //   width: 70, // Set to 2 * radius
-                          //   height: 70, // Set to 2 * radius
-                          // )
-                          // Image.network(
-                          //   image['dpUrl'],
-                          //   height: 50,
-                          //   width: 50,
-                          //   fit: BoxFit.cover,
-                          //   color: textColor.withValues(alpha: 0.9),
-                          // )
-                          : Image.asset(
-                              "assets/images/zine_logo.png",
-                              height: 50,
-                              width: 50,
-                              fit: BoxFit.cover,
-                              // color: textColor.withValues(alpha: 0.9),
-                            )),
-                ),
+                child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 20,
+                        foregroundImage: FileImage(
+                          File(image),
+                        ),
+                        backgroundImage:
+                            const AssetImage("assets/images/zine_logo.png"),
+
+                      ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -135,12 +117,7 @@ class ChatDescription extends StatelessWidget {
                                     child: Container(
                                       color: Colors.transparent,
                                       padding: const EdgeInsets.all(5.0),
-                                      child: File(roomMember.dpUrl.toString())
-                                              .existsSync()
-                                          ? chatVm.showProfileImage(
-                                              roomMember.dpUrl.toString())
-                                          : chatVm.customUserName(
-                                              roomMember.name ?? "User"),
+                                      child: ProfilePicture(name: roomMember.name!, dp: roomMember.dpUrl,)
                                     ),
                                   ),
                                 ),

@@ -57,64 +57,59 @@ class _ChatScreenState extends State<ChatScreen> {
       return chatVm.isRoomLoaded
           ? Container(
               color: backgroundGrey,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //--------------------Channels-------------------------------
-                      announcementDetails != null &&
-                              announcementDetails.isNotEmpty
-                          ? headingText("Channels")
-                          : Container(),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    //--------------------Channels-------------------------------
+                    announcementDetails != null &&
+                            announcementDetails.isNotEmpty
+                        ? headingText("Channels")
+                        : Container(),
 
-                      announcementDetails != null &&
-                              announcementDetails.isNotEmpty
-                          ? Channel(
-                              // name: "Announcements",
-                              // roomId: "452",
-                              // roomDetail: [name:"Announcements",roomId:"452"],
-                              roomDetail: announcementDetails[0],
-                            )
-                          : Container(),
+                    announcementDetails != null &&
+                            announcementDetails.isNotEmpty
+                        ? Channel(
+                            // name: "Announcements",
+                            // roomId: "452",
+                            // roomDetail: [name:"Announcements",roomId:"452"],
+                            roomDetail: announcementDetails[0],
+                          )
+                        : Container(),
 
-                      //--------------------Workshop-------------------------------------
-                      workshopDetails != null && workshopDetails.isNotEmpty
-                          ? headingText("Workshop")
-                          : Container(),
-                      workshopDetails != null && workshopDetails.isNotEmpty
-                          ? ChatGroups(roomDetails: workshopDetails)
-                          : Container(),
+                    //--------------------Workshop-------------------------------------
+                    workshopDetails != null && workshopDetails.isNotEmpty
+                        ? headingText("Workshop")
+                        : Container(),
+                    workshopDetails != null && workshopDetails.isNotEmpty
+                        ? ChatGroups(roomDetails: workshopDetails)
+                        : Container(),
 
-                      const SizedBox(
-                        height: 20,
-                      ),
+                    const SizedBox(
+                      height: 20,
+                    ),
 
-                      //--------------------Projects-----------------------------------R
-                      projectDetails != null && projectDetails.isNotEmpty
-                          ? headingText("Project")
-                          : Container(),
-                      if (projectDetails != null && projectDetails.isNotEmpty)
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height *
-                              0.5, // You can adjust the height as needed
-                          child: chatVm.isRoomLoaded
-                              ? ListView.builder(
-                                  itemCount: projectDetails.length,
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return Channel(
-                                      roomDetail: projectDetails[index],
-                                    );
-                                  },
-                                )
-                              : const Center(
-                                  child: CircularProgressIndicator()),
-                        )
-                    ],
-                  ),
+                    //--------------------Projects-----------------------------------R
+                    projectDetails != null && projectDetails.isNotEmpty
+                        ? headingText("Project")
+                        : Container(),
+                    if (projectDetails != null && projectDetails.isNotEmpty)
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height *
+                            0.5, // You can adjust the height as needed
+                        child: chatVm.isRoomLoaded
+                            ? ListView.builder(
+                                itemCount: projectDetails.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Channel(
+                                    roomDetail: projectDetails[index],
+                                  );
+                                },
+                              )
+                            : const Center(child: CircularProgressIndicator()),
+                      )
+                  ],
                 ),
               ),
             )

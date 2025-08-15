@@ -9,7 +9,7 @@ import 'package:zineapp2023/screens/chat/chat_screen/view_model/chat_room_view_m
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 
-const  DOWNLOAD_PATH = '/storage/emulated/0/Download';
+const DOWNLOAD_PATH = '/storage/emulated/0/Download';
 
 const Color userColor = Color.fromARGB(255, 104, 181, 228);
 const Color userSelectedTextColor = Color.fromARGB(255, 255, 255, 255);
@@ -171,29 +171,13 @@ class _FileTileState extends State<FileTile> {
   @override
   Widget build(BuildContext context) {
     bool startImage = widget.message.file!.uri.toString().startsWith('http');
+    double screenWidth = MediaQuery.of(context).size.width;
 
     return ListTile(
       contentPadding: widget.isUser
           ? const EdgeInsets.only(top: 10, left: 10)
           : const EdgeInsets.only(top: 10, right: 10),
       titleAlignment: ListTileTitleAlignment.center,
-      leading: widget.isUser || widget.group
-          ? CircleAvatar(
-              backgroundColor: const Color.fromARGB(15, 255, 255, 255),
-              radius: 25,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Container(),
-              ),
-            )
-          : File(widget.message.sender!.dp.toString()).existsSync()
-              ? widget.chatRoomViewModel.showProfileImage(
-                  widget.message.sender!.dp.toString(),
-                  radius: 50.0,
-                )
-              : widget.chatRoomViewModel.customUserName(
-                  widget.message.sender!.name.toString(),
-                ),
       title: InkWell(
         onTap: () {
           if (isImage()) {
@@ -208,7 +192,8 @@ class _FileTileState extends State<FileTile> {
           }
         },
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 250),
+          constraints: BoxConstraints(
+              maxHeight: 250, minWidth: 40, maxWidth: 0.8 * screenWidth),
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(

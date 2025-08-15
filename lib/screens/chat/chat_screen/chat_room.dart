@@ -1,5 +1,3 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:zineapp2023/screens/chat/chat_description/chat_descp.dart';
+import 'package:zineapp2023/screens/chat/chat_screen/chat_view.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/reply_card.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/components/file_selector_tile.dart';
 import 'package:zineapp2023/screens/chat/chat_screen/poll_screen.dart';
@@ -17,7 +16,6 @@ import '../../../components/gradient.dart';
 import '../../../database/database.dart';
 import '../../../models/newUser.dart';
 import '../../../models/rooms.dart';
-import 'chat_view.dart';
 
 class ChatRoom extends StatefulWidget {
   // final dynamic roomName;
@@ -32,7 +30,6 @@ class ChatRoom extends StatefulWidget {
 }
 
 class _ChatRoomState extends State<ChatRoom> {
-
   // Store the last known scroll position
 
   late ChatRoomViewModel chatRoomView;
@@ -120,7 +117,6 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Consumer3<ChatRoomViewModel, DashboardVm, UserProv>(
       builder: (context, chatVm, dashVm, userProv, _) {
-
         final roomName = widget.roomDetail!.name.toString();
         final image = widget.roomDetail!.dpUrl.toString();
         // chatVm.room = widget.roomDetail!.id.toString();
@@ -158,7 +154,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 onTap: () {
                   if (widget.roomDetail!.type.toString() != 'announcement') {
                     Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (BuildContext context) {
+                        MaterialPageRoute(builder: (BuildContext context) {
                       // return Text("chatDesctiption remove");
                       return ChatDescription(
                           roomName: roomName,
@@ -191,24 +187,25 @@ class _ChatRoomState extends State<ChatRoom> {
                 ),
                 // border: Border.all(color: greyText, width: 2.0),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // chatV(data, currUser, dashVm, chatVm.replyText,
-                    //     chatVm.updateMessage, context),
-                    chatV(context, dashVm, chatVm.userReplyText),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // chatV(data, currUser, dashVm, chatVm.replyText,
+                  //     chatVm.updateMessage, context),
+                  const ChatsScreen(),
 
-                    if (isAllowedTyping)
-                      Column(
+                  if (isAllowedTyping)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        //TODO: Refactor into other new widget
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           //  chatVm.replyTo != null
                           chatVm.replyTo != null
-                              ? ReplyCard(
+                              ? ReplyPreviewCard(
                                   chatVm: chatVm,
                                 )
                               : Container(),
@@ -218,8 +215,9 @@ class _ChatRoomState extends State<ChatRoom> {
                                   : Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: Colors.blue.withValues(alpha:
-                                            0.1), // Subtle background color
+                                        color: Colors.blue.withValues(
+                                            alpha:
+                                                0.1), // Subtle background color
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Column(
@@ -335,11 +333,11 @@ class _ChatRoomState extends State<ChatRoom> {
                             ),
                           ),
                         ],
-                      )
-                    else
-                      Container()
-                  ],
-                ),
+                      ),
+                    )
+                  else
+                    Container()
+                ],
               ),
             ),
           ),

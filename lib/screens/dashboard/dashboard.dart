@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:zineapp2023/components/profile_picture.dart';
 import 'package:zineapp2023/models/user.dart';
 import 'package:zineapp2023/providers/user_info.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -99,15 +100,16 @@ class _DashboardState extends State<Dashboard> {
                               ),
                               const Spacer(),
                               File(currUser.dp!.toString()).existsSync()
-                                  ? chatVm
-                                      .showProfileImage(currUser.dp!.toString())
+                                  ? ProfilePicture(
+                                      dp: currUser.dp!.toString(),
+                                      name: currUser.name!)
                                   : CircleAvatar(
                                       radius: 30,
                                       backgroundColor: iconTile,
                                       backgroundImage: AssetImage(
                                         "assets/images/dp/${currUser.dp}.png",
                                       )),
-                              // buildProfilePicture(chatVm.showProfileImage(currUser.dp!.toString()), currUser.name!,
+                              // buildProfilePicture(ProfilePicture(currUser.dp!.toString()), currUser.name!,
                               //     size: 30),
                               // CircleAvatar(
                               //   radius: 30,
@@ -188,7 +190,8 @@ class _DashboardState extends State<Dashboard> {
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: MediaQuery.of(context)
-                                                        .textScaler.scale(15),
+                                                    .textScaler
+                                                    .scale(15),
                                                 color: const Color(0xff0C72B0)),
                                           ),
                                         ),
@@ -196,7 +199,8 @@ class _DashboardState extends State<Dashboard> {
                                           DateTime.now().day.toString(),
                                           style: TextStyle(
                                               fontSize: MediaQuery.of(context)
-                                                      .textScaler.scale(60),
+                                                  .textScaler
+                                                  .scale(60),
                                               fontWeight: FontWeight.w700,
                                               color: const Color(0xff0C72B0)),
                                           textAlign: TextAlign.center,
@@ -207,7 +211,8 @@ class _DashboardState extends State<Dashboard> {
                                               .toUpperCase(),
                                           style: TextStyle(
                                               fontSize: MediaQuery.of(context)
-                                                      .textScaler.scale(40),
+                                                  .textScaler
+                                                  .scale(40),
                                               fontWeight: FontWeight.w700,
                                               color: const Color(0xffa3d0ec)),
                                           textAlign: TextAlign.center,
@@ -263,9 +268,10 @@ class _DashboardState extends State<Dashboard> {
                                                   textAlign: TextAlign.center,
                                                   softWrap: true,
                                                   style: TextStyle(
-                                                      fontSize: MediaQuery.of(
-                                                                  context)
-                                                              .textScaler.scale(25  )      ,
+                                                      fontSize:
+                                                          MediaQuery.of(context)
+                                                              .textScaler
+                                                              .scale(25),
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       color: greyText),
@@ -391,10 +397,8 @@ class _DashboardState extends State<Dashboard> {
                             return Builder(
                               builder: (BuildContext context) {
                                 return GestureDetector(
-                                  onTap: () =>
-                                   launchUrlString(
-                                        'https://zine.co.in/blogs/${DashboardVm.routes[i]!.toLowerCase()}')
-                                  ,
+                                  onTap: () => launchUrlString(
+                                      'https://zine.co.in/blogs/${DashboardVm.routes[i]!.toLowerCase()}'),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5.5, vertical: 10),

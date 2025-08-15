@@ -100,11 +100,6 @@ class ChatRoomViewModel extends ChangeNotifier {
     isConnected = true;
   }
 
-  // void assignGlobalKeystoMessages() {
-  //   for (var message in messages) {
-  //     messageKeys[message.id!] = GlobalKey();
-  //   }
-  // }
 
   void subscribeToActiveMember(String currRoomID, AppDb db) {
     _client.subscribe(
@@ -982,60 +977,9 @@ class ChatRoomViewModel extends ChangeNotifier {
     }
   }
 
-  Widget showProfileImage(String imagePath,
-      {double width = 50.0, height = 50.0, radius = 10.0}) {
-    try {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: Image.file(
-          File(imagePath),
-          fit: BoxFit.cover,
-          width: width,
-          height: height,
-        ),
-      );
-    } catch (e) {
-      logger.e("Error displaying profile image: $e");
-      return const ClipOval(
-        child: Icon(
-          Icons.person,
-          size: 40,
-          color: Colors.grey,
-        ),
-      );
-    }
-  }
 
-  Color _generateBackgroundColor(String name) {
-    int hash = name.hashCode;
-    int colorIndex = hash % Colors.primaries.length;
-    return Colors.primaries[colorIndex];
-  }
 
-  Color _getContrastingTextColor(Color backgroundColor) {
-    double luminance = backgroundColor.computeLuminance();
-    return luminance > 0.5 ? Colors.black : Colors.white;
-  }
 
-  Widget customUserName(String? name, {double radius = 50.0}) {
-    name = name ?? "zine";
-    Color backgroundColor = _generateBackgroundColor(name);
-    Color textColor = _getContrastingTextColor(backgroundColor);
-    return ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: Container(
-          width: 50,
-          height: 50,
-          color: _generateBackgroundColor(name).withValues(alpha: 0.8),
-          child: Center(
-            child: Text(
-              name.substring(0, 1).toUpperCase(),
-              style: TextStyle(
-                  fontSize: 30, color: textColor, fontFamily: 'Poppins'),
-            ),
-          ),
-        ));
-  }
 
   void sendPollResponse(int messageId, int optionId) {
     if (!_client.connected) {
